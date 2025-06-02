@@ -1,0 +1,12 @@
+[
+    {
+        "ID": 1,
+        "Name": "HBC Classic",
+        "Desc": "The original HBC look!"
+    },
+    {
+        "ID": 2,
+        "Name": "Wii Menu HBC",
+        "Desc": "Based on Wii System Menu."
+    }
+]
