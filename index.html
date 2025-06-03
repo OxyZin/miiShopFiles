@@ -1,105 +1,240 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Arquivos Wii Homebrew</title>
+    <title>miiShopFiles</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            background-color: #008080;
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 0;
+            color: #000;
         }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
+        .container {
+            width: 800px;
+            margin: 20px auto;
+            background: #c0c0c0;
+            border: 3px solid #000;
+            box-shadow: 5px 5px 0 #333;
         }
-        .file-list {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .file-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+        .header {
+            background: #000080;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
             display: flex;
             justify-content: space-between;
         }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-name {
+        .warning {
+            background: #ffff00;
+            color: #000;
+            padding: 10px;
+            margin: 10px;
+            border: 2px dotted #000;
             font-weight: bold;
         }
-        .file-link {
-            color: #3498db;
-            text-decoration: none;
+        .file-browser {
+            margin: 10px;
         }
-        .file-link:hover {
-            text-decoration: underline;
+        .address-bar {
+            background: white;
+            padding: 3px;
+            margin-bottom: 10px;
+            border: 2px inset;
+        }
+        .toolbar {
+            background: #c0c0c0;
+            padding: 3px;
+            border-bottom: 2px solid #808080;
+            border-right: 2px solid #808080;
+            border-left: 2px solid #fff;
+            border-top: 2px solid #fff;
+        }
+        .file-list {
+            background: white;
+            border: 2px inset;
+            min-height: 300px;
+        }
+        .file-item {
+            display: flex;
+            padding: 2px 5px;
+        }
+        .file-item:hover {
+            background: #000080;
+            color: white;
+        }
+        .file-icon {
+            width: 20px;
+            text-align: center;
+            margin-right: 5px;
+        }
+        .file-name {
+            flex: 1;
         }
         .file-size {
-            color: #7f8c8d;
-            font-size: 0.9em;
+            width: 100px;
+            text-align: right;
+        }
+        .file-date {
+            width: 150px;
+            text-align: right;
+        }
+        .status-bar {
+            background: #c0c0c0;
+            padding: 3px;
+            border-top: 2px solid #808080;
+            border-left: 2px solid #808080;
+            border-right: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <h1>📁 Arquivos Wii Homebrew</h1>
-    <div class="file-list" id="file-list">
-        <p>Carregando lista de arquivos...</p>
+    <div class="container">
+        <div class="header">
+            <span>miiShop "FTP"</span>
+            <span>X</span>
+        </div>
+        
+        <div class="toolbar">
+            <button>Arquivo</button>
+            <button>Editar</button>
+            <button>Exibir</button>
+            <button>Ajuda</button>
+        </div>
+        
+        <div class="address-bar">
+            Endereço: ftp://github.com/OxyZin/miiShopFiles
+        </div>
+        
+        <div id="warning-message" class="warning" style="display: none;">
+            <!-- Mensagem será carregada aqui -->
+        </div>
+        
+        <div class="file-browser">
+            <div class="file-list-header file-item">
+                <div class="file-icon"></div>
+                <div class="file-name">Nome</div>
+                <div class="file-size">Tamanho</div>
+                <div class="file-date">Modificado</div>
+            </div>
+            <div class="file-list" id="file-list">
+                <div class="file-item">
+                    <div class="file-name">Carregando...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <span id="status">Pronto</span>
+        </div>
     </div>
 
     <script>
-        // Substitua pelo seu usuário e repositório
+        // Configurações
         const GITHUB_USER = "OxyZin";
         const GITHUB_REPO = "miiShopFiles";
-        const BRANCH = "main"; // ou "master"
-
-        // API do GitHub para listar arquivos
-        fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`)
-            .then(response => response.json())
-            .then(data => {
-                const fileList = document.getElementById('file-list');
-                fileList.innerHTML = ''; // Limpa o "carregando"
-
-                data.forEach(item => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-
-                    const fileName = document.createElement('span');
-                    fileName.className = 'file-name';
-                    fileName.textContent = item.name;
-
-                    const fileLink = document.createElement('a');
-                    fileLink.className = 'file-link';
-                    fileLink.href = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${item.path}`;
-                    fileLink.textContent = 'Download';
-                    fileLink.target = '_blank';
-
-                    const fileSize = document.createElement('span');
-                    fileSize.className = 'file-size';
-                    fileSize.textContent = formatFileSize(item.size);
-
-                    fileItem.appendChild(fileName);
-                    fileItem.appendChild(fileLink);
-                    fileItem.appendChild(fileSize);
-                    fileList.appendChild(fileItem);
+        const BRANCH = "main";
+        
+        // Primeiro verifica se existe msg.txt
+        checkForMessage();
+        
+        // Depois carrega a lista de arquivos
+        loadFileList();
+        
+        function checkForMessage() {
+            fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/msg.txt`)
+                .then(response => {
+                    if (response.ok) return response.text();
+                    throw new Error('Arquivo não encontrado');
+                })
+                .then(text => {
+                    const warningDiv = document.getElementById('warning-message');
+                    warningDiv.innerHTML = text;
+                    warningDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.log('Nenhuma mensagem encontrada');
                 });
-            })
-            .catch(error => {
-                console.error("Erro ao carregar arquivos:", error);
-                document.getElementById('file-list').innerHTML = 
-                    '<p>Erro ao carregar arquivos. Verifique o console.</p>';
-            });
-
+        }
+        
+        function loadFileList() {
+            document.getElementById('status').textContent = 'Conectando ao servidor...';
+            
+            fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`)
+                .then(response => response.json())
+                .then(data => {
+                    const fileList = document.getElementById('file-list');
+                    fileList.innerHTML = '';
+                    
+                    // Ordena: pastas primeiro
+                    data.sort((a, b) => {
+                        if (a.type === b.type) return a.name.localeCompare(b.name);
+                        return a.type === 'dir' ? -1 : 1;
+                    });
+                    
+                    data.forEach(item => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        
+                        const fileIcon = document.createElement('div');
+                        fileIcon.className = 'file-icon';
+                        fileIcon.innerHTML = item.type === 'dir' ? '📁' : '📄';
+                        
+                        const fileName = document.createElement('div');
+                        fileName.className = 'file-name';
+                        fileName.textContent = item.name;
+                        
+                        const fileSize = document.createElement('div');
+                        fileSize.className = 'file-size';
+                        fileSize.textContent = item.type === 'dir' ? '' : formatFileSize(item.size);
+                        
+                        const fileDate = document.createElement('div');
+                        fileDate.className = 'file-date';
+                        fileDate.textContent = formatDate(item.type === 'dir' ? new Date() : new Date());
+                        
+                        const fileLink = document.createElement('a');
+                        fileLink.href = `http://raw.githack.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${item.path}`;
+                        fileLink.style.display = 'none';
+                        
+                        fileItem.appendChild(fileIcon);
+                        fileItem.appendChild(fileName);
+                        fileItem.appendChild(fileSize);
+                        fileItem.appendChild(fileDate);
+                        fileItem.appendChild(fileLink);
+                        
+                        fileItem.addEventListener('click', () => {
+                            if (item.type === 'dir') {
+                                // Navega para a pasta
+                                window.location.href = `?path=${encodeURIComponent(item.path)}`;
+                            } else {
+                                // Download do arquivo
+                                window.open(fileLink.href, '_blank');
+                            }
+                        });
+                        
+                        fileList.appendChild(fileItem);
+                    });
+                    
+                    document.getElementById('status').textContent = `${data.length} itens`;
+                })
+                .catch(error => {
+                    document.getElementById('file-list').innerHTML = 
+                        '<div class="file-item"><div class="file-name">Erro ao carregar arquivos</div></div>';
+                    document.getElementById('status').textContent = 'Erro de conexão';
+                });
+        }
+        
         function formatFileSize(bytes) {
+            if (!bytes) return '';
             if (bytes < 1024) return bytes + ' B';
-            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-            else return (bytes / 1048576).toFixed(1) + ' MB';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+        
+        function formatDate(date) {
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
     </script>
 </body>
