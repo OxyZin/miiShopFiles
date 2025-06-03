@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>miiShopFiles</title>
+    <title>miiShopFiles - FTP Browser</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -58,6 +58,7 @@
         .file-item {
             display: flex;
             padding: 2px 5px;
+            cursor: pointer;
         }
         .file-item:hover {
             background: #000080;
@@ -93,61 +94,61 @@
 <body>
     <div class="container">
         <div class="header">
-            <span>miiShop "FTP"</span>
+            <span>miiShopFiles FTP</span>
             <span>X</span>
         </div>
         
         <div class="toolbar">
-            <button>Arquivo</button>
-            <button>Editar</button>
-            <button>Exibir</button>
-            <button>Ajuda</button>
+            <button>File</button>
+            <button>Edit</button>
+            <button>View</button>
+            <button>Help</button>
         </div>
         
         <div class="address-bar">
-            Endereço: ftp://github.com/OxyZin/miiShopFiles
+            Address: ftp://github.com/OxyZin/miiShopFiles
         </div>
         
         <div id="warning-message" class="warning" style="display: none;">
-            <!-- Mensagem será carregada aqui -->
+            <!-- Message will load here if msg.txt exists -->
         </div>
         
         <div class="file-browser">
             <div class="file-list-header file-item">
                 <div class="file-icon"></div>
-                <div class="file-name">Nome</div>
-                <div class="file-size">Tamanho</div>
-                <div class="file-date">Modificado</div>
+                <div class="file-name">Name</div>
+                <div class="file-size">Size</div>
+                <div class="file-date">Modified</div>
             </div>
             <div class="file-list" id="file-list">
                 <div class="file-item">
-                    <div class="file-name">Carregando...</div>
+                    <div class="file-name">Loading...</div>
                 </div>
             </div>
         </div>
         
         <div class="status-bar">
-            <span id="status">Pronto</span>
+            <span id="status">Ready</span>
         </div>
     </div>
 
     <script>
-        // Configurações
+        // Configuration
         const GITHUB_USER = "OxyZin";
         const GITHUB_REPO = "miiShopFiles";
         const BRANCH = "main";
         
-        // Primeiro verifica se existe msg.txt
+        // Check for message (optional)
         checkForMessage();
         
-        // Depois carrega a lista de arquivos
+        // Load file list
         loadFileList();
         
         function checkForMessage() {
             fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/msg.txt`)
                 .then(response => {
                     if (response.ok) return response.text();
-                    throw new Error('Arquivo não encontrado');
+                    throw new Error('File not found');
                 })
                 .then(text => {
                     const warningDiv = document.getElementById('warning-message');
@@ -155,12 +156,12 @@
                     warningDiv.style.display = 'block';
                 })
                 .catch(error => {
-                    console.log('Nenhuma mensagem encontrada');
+                    console.log('No message file found - continuing normally');
                 });
         }
         
         function loadFileList() {
-            document.getElementById('status').textContent = 'Conectando ao servidor...';
+            document.getElementById('status').textContent = 'Connecting to server...';
             
             fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`)
                 .then(response => response.json())
@@ -168,7 +169,7 @@
                     const fileList = document.getElementById('file-list');
                     fileList.innerHTML = '';
                     
-                    // Ordena: pastas primeiro
+                    // Sort: folders first
                     data.sort((a, b) => {
                         if (a.type === b.type) return a.name.localeCompare(b.name);
                         return a.type === 'dir' ? -1 : 1;
@@ -192,7 +193,7 @@
                         
                         const fileDate = document.createElement('div');
                         fileDate.className = 'file-date';
-                        fileDate.textContent = formatDate(item.type === 'dir' ? new Date() : new Date());
+                        fileDate.textContent = formatDate(new Date()); // GitHub doesn't provide modified date in this API
                         
                         const fileLink = document.createElement('a');
                         fileLink.href = `http://raw.githack.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${item.path}`;
@@ -206,10 +207,10 @@
                         
                         fileItem.addEventListener('click', () => {
                             if (item.type === 'dir') {
-                                // Navega para a pasta
-                                window.location.href = `?path=${encodeURIComponent(item.path)}`;
+                                // For folders: could implement navigation here
+                                alert('Folder navigation would go here in a full implementation');
                             } else {
-                                // Download do arquivo
+                                // For files: open download link
                                 window.open(fileLink.href, '_blank');
                             }
                         });
@@ -217,12 +218,12 @@
                         fileList.appendChild(fileItem);
                     });
                     
-                    document.getElementById('status').textContent = `${data.length} itens`;
+                    document.getElementById('status').textContent = `${data.length} items`;
                 })
                 .catch(error => {
                     document.getElementById('file-list').innerHTML = 
-                        '<div class="file-item"><div class="file-name">Erro ao carregar arquivos</div></div>';
-                    document.getElementById('status').textContent = 'Erro de conexão';
+                        '<div class="file-item"><div class="file-name">Error loading files</div></div>';
+                    document.getElementById('status').textContent = 'Connection error';
                 });
         }
         
